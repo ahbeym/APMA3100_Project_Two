@@ -21,7 +21,8 @@ public class MonteCarlo {
         double [] numList;
         numList = randomNumberGenerator();
         for(int i = 0; i < numList.length; i++){
-            System.out.println("Element " + i + ": " + numList[i]);
+            int disp = i+1;
+            System.out.println("Element " + disp + ": " + numList[i]);
         }
 
     }

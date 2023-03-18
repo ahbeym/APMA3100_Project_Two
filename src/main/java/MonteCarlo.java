@@ -5,10 +5,12 @@ public class MonteCarlo {
     static final int C = 3517; //increment
     static final int K = (int) Math.pow(2,17); //modulus
     static final int num_of_RV = 500;
+    static double [] W = new double[num_of_RV];
+    static int iter = 0;
+    static double [] x = new double[num_of_RV];
+    static double [] u = new double[num_of_RV];
 
     public static double [] randomNumberGenerator(){
-       double [] x = new double[num_of_RV];
-       double [] u = new double[num_of_RV];
        x[0] = ((A* x_0+ C )% K);
        u[0] = x[0] / (double) K;
        for (int i = 1; i < num_of_RV; i++){
@@ -17,22 +19,45 @@ public class MonteCarlo {
        }
        return u;
     }
-    public static void main(String[] args){
-        double [] numList;
-        numList = randomNumberGenerator();
-        for(int i = 0; i < numList.length; i++){
-            int disp = i+1;
-            System.out.println("Element " + disp + ": " + numList[i]);
+    public static double[] availabilityAndTimeChecker() {
+        for (int i = 0; i < num_of_RV; i++) {
+            int calls = 0;
+            while (calls < 4) {
+                calls++;
+                W[i] += 6;
+                if (u[iter] <= 0.2) {
+                    W[i] += 4;
+                }
+                else if((u[iter] <= 0.5) && (u[iter] > 0.2)) {
+                    W[i] += 26;
+                }
+                else if (u[iter] > 0.5) {
+                    double x = -12*Math.log(1-u[iter]);
+                    if (x <= 25) {
+                        W[i] += x;
+                        break;
+                    }
+                    else if (x > 25) {
+                        W[i] += 26;
+                    }
+                }
+                iter++;
+            }
         }
+        return W;
+    }
+    public static void main(String[] args) {
+        double[] numList;
+        double[] timeList;
+        numList = randomNumberGenerator();
+        timeList = availabilityAndTimeChecker();
+        for (int i = 0; i < numList.length; i++) {
+            int disp = i + 1;
+//            System.out.println("Element " + disp + ": " + numList[i]);
+            System.out.println("Element " + disp + ": " + numList[i] + ", " + timeList[i]);
+
+        }
+
 
     }
 }
-
-//    double [] nums = new double[500];
-//    int x_i = x_0;
-//        for (int i = 0; i < 500; i++){
-//        x_i = ((x_i*A)+C) % K;
-//        double u_i = (double) x_i / K;
-//        nums[i] = u_i;
-//        }
-//        return nums;

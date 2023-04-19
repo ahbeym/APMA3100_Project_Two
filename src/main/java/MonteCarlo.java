@@ -1,19 +1,19 @@
 
-import java.util.Arrays;
+import java.util.*;
 
 public class MonteCarlo {
 
     static final int x_0 = 1000;
     static final int A = 24693; //multiplier
-    static final int C = 3517; //increment
-    static final int K = (int) Math.pow(2,17); //modulus
-    static final int num_of_RV = 2003;
+    static final int C = 3967; //increment 3517
+    static final int K = (int) Math.pow(2,18); //modulus
+    static final int num_of_RV = 2003 ;
     static double [] W = new double[500];
     static int iter = -1;
-    static double [] x = new double[num_of_RV];
-    static double [] u = new double[num_of_RV];
+    static double [] x = new double[1000000];
+    static double [] u = new double[1000000];
 
-    public static double [] randomNumberGenerator() {
+    public static double [] randomNumberGenerator(int num_of_RV, int A, int C, int K, int x_0) {
         x[0] = ((A* x_0+ C )% K);
         u[0] = x[0] / (double) K;
         for (int i = 1; i < num_of_RV; i++) {
@@ -81,22 +81,79 @@ public class MonteCarlo {
 
         return out;
     }
-    public static void main(String[] args) {
-        double [] numList;
-        double [] timeList;
-        numList = randomNumberGenerator();
-        timeList = availabilityAndTimeChecker();
-        Arrays.sort(timeList);
-        double mean = calcMean(timeList);
-        double median = calcMedian(timeList);
-        double [] neat = round(timeList, 4);
-        System.out.println("W mean: " + mean);
-        System.out.println("W median: " + median);
-        System.out.println("----------------------------");
-        for(int i = 0; i < 500; i++) {
+    public static void printU(double [] dArray){
+        for (int i = 0; i < 500; i++){
             int form = i+1;
-
-            System.out.println("Value " + form + ": " + neat[i]);
+            System.out.println("u Value " + form + ": " + dArray[i]);
         }
     }
-}
+
+    public static ArrayList<Double> updateArray1(ArrayList<Double> array1, ArrayList<Double> array2) {
+
+        // Create a map to keep track of the number of duplicates for each value in array2
+        Map<Double, Integer> duplicates = new HashMap<Double, Integer>();
+        for (double value : array2) {
+            if (duplicates.containsKey(value)) {
+                duplicates.put(value, duplicates.get(value) + 1);
+            } else {
+                duplicates.put(value, 1);
+            }
+        }
+
+        // Loop through array2 and update the corresponding values in array1
+        for (int i = 0; i < array2.size(); i++) {
+            double value = array2.get(i);
+            int numDuplicates = duplicates.get(value);
+            if (numDuplicates > 1) {
+                double newValue = value * ((double) numDuplicates / 500);
+                array1.set(i, newValue);
+            }
+        }
+
+        return array1;
+    }
+
+    public static List<Double> generateSampleMeans() {
+        List<Double> sampleMeans = new ArrayList<>();
+        int[] nValues = {10, 30, 50, 100, 250, 500, 1000};
+        int numTrials = 110;
+        int numRVs = 1000;
+        int A = 24693;
+        int C = 3967;
+        int K = (int) Math.pow(2, 18);
+        int x_0 = 1000;
+
+        for (int n : nValues) {
+            for (int i = 0; i < numTrials; i++) {
+                numRVs = 110*n;
+                double[] randomNums = randomNumberGenerator(numRVs, A, C, K, x_0 ); // do we use i to generate a different seed for each trial
+                double sum = 0.0;
+                for (int j = 0; j < n; j++) {
+                    sum += randomNums[j];
+                }
+                double mean = sum / n;
+                sampleMeans.add(mean);
+            }
+        }
+        return sampleMeans;
+    }
+    public static void main(String[] args) {
+//        double [] probList;
+//        double [] WList;
+//        probList = randomNumberGenerator();
+//
+//        WList = availabilityAndTimeChecker();
+//        //Arrays.sort(WList);
+//
+//        double [] neat = round(WList, 2);
+//        for (int i = 0; i < 500; i++){
+//            System.out.println(probList[i]);
+        List<Double> sampleMeans = generateSampleMeans();
+        System.out.println(sampleMeans);
+        System.out.println(sampleMeans.size());
+        }
+
+
+
+    }
+
